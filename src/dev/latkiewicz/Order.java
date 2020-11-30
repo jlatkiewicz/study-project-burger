@@ -3,6 +3,8 @@ package dev.latkiewicz;
 import java.math.BigDecimal;
 import java.util.Optional;
 
+import static java.math.BigDecimal.ZERO;
+
 public class Order {
     private Burger burger;
     private Fries fries;
@@ -11,7 +13,7 @@ public class Order {
         var price = burgerOrder.ingredients()
                 .stream()
                 .map(Ingredient::price)
-                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .reduce(ZERO, BigDecimal::add)
                 .add(burgerOrder.baseBurgerPrice());
         var calories = burgerOrder.ingredients()
                 .stream()
@@ -25,12 +27,16 @@ public class Order {
         this.fries = new Fries(friesOrder.price(), friesOrder.calories());
     }
 
-    public Optional<Burger> getBurger() {
-        return Optional.ofNullable(burger);
+    public BigDecimal getPrice() {
+        var burgerPrice = Optional.ofNullable(burger).map(Burger::price).orElse(ZERO);
+        var friesPrice = Optional.ofNullable(fries).map(Fries::price).orElse(ZERO);
+        return burgerPrice.add(friesPrice);
     }
 
-    public Optional<Fries> getFries() {
-        return Optional.ofNullable(fries);
+    public int getCalories() {
+        var burgerCalories = Optional.ofNullable(burger).map(Burger::calories).orElse(0);
+        var friesCalories = Optional.ofNullable(fries).map(Fries::calories).orElse(0);
+        return burgerCalories + friesCalories;
     }
 
     @Override
@@ -38,6 +44,8 @@ public class Order {
         return "Order{" +
                 "burger=" + burger +
                 ", fries=" + fries +
+                ", total calories=" + getCalories() +
+                ", total price=" + getPrice() +
                 '}';
     }
 }
